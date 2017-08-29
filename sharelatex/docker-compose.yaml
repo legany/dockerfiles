@@ -1,0 +1,46 @@
+# Create user admin
+# docker exec sharelatex /bin/bash -c "cd /var/www/sharelatex; grunt user:create-admin --email name@example.com"
+
+version: '3.3'
+
+services:
+    sharelatex-mongo:
+        restart: always
+        image: mongo
+        container_name: sharelatex-mongo
+        expose:
+            - 27017
+        volumes:
+            - sharelatex:/data/db
+
+    sharelatex-redis:
+        restart: always
+        image: redis
+        container_name: sharelatex-redis
+        expose:
+            - 6379
+        volumes:
+            - sharelatex:/data
+
+    sharelatex-app:
+        restart: always
+        image: sharelatex/sharelatex
+        container_name: sharelatex-app
+        depends_on:
+            - sharelatex-redis
+            - sharelatex-mongo
+        privileged: true
+        ports:
+            - 80:80
+        links:
+            - sharelatex-redis
+            - sharelatex-mongo
+        environment:
+            - SHARELATEX_MONGO_URL=mongodb://sharelatex-mongo:27017/sharelatex-app
+            - SHARELATEX_REDIS_HOST=sharelatex-redis
+            - SHARELATEX_APP_NAME=Sharelatex
+        volumes:
+            - sharelatex:/var/lib/sharelatex
+
+volumes:
+    sharelatex:
