@@ -11,6 +11,9 @@
 #   # Build latex image
 #   docker build -t latex .
 #
+#   # Create new container
+#   sudo docker run -itd --name latex -v [host directory]:/Latex latex
+#
 #
 
 # Base docker image
@@ -19,7 +22,8 @@ FROM debian:stretch
 # Maintainer
 MAINTAINER Eugenio Cunha <eugenio@legany.com>
 
-LABEL version="1.0"
+# Label
+LABEL version="1.1"
 
 # Install wget, git, make and latex
 RUN apt-get update && apt-get install -y \
@@ -29,3 +33,9 @@ RUN apt-get update && apt-get install -y \
   texlive-full && \
   apt-get --purge remove -y .\*-doc$ && \
   apt-get clean -y
+
+# Create directory Latex
+RUN mkdir -p /Latex
+
+# Worckdir
+WORKDIR /Latex
